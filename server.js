@@ -19,6 +19,10 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 // ✅ Serve your static frontend (public folder)
 app.use(express.static(path.join(__dirname, "public")));
 
+// ✅ Root route — main HTML فائل لوڈ کرے گا
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 /* ------------------ MAIN FORM SUBMISSION API ------------------ */
 app.post("/api/forms", async (req, res) => {
   try {
@@ -68,3 +72,4 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () =>
   console.log(`🚀 Server running at: http://localhost:${PORT}`)
 );
+
