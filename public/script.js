@@ -154,17 +154,9 @@ async function buildPdfFromPages() {
 
 /* ---------- 4) Send Data + Export PDF + WhatsApp ---------- */
 async function exportPdfAndOpenWhatsAppApp() {
-  const master = document.getElementById('declMaster');
-  if (master && !master.checked) {
-    alert('برائے مہربانی “I agree” چیک باکس کو ٹک کریں۔');
-    return;
-  }
-
-  document.querySelectorAll('.declaration-list input.decl')
-    .forEach(cb => cb.checked = true);
-
+  
   // ✅ پہلے فارم کا ڈیٹا سرور پر بھیجیں تاکہ n8n webhook تک پہنچے
-  await sendFormDataToServer();
+  // await sendFormDataToServer();
 
   // پھر PDF بنائیں اور WhatsApp پر شئیر کریں
   const built = await buildPdfFromPages();
@@ -176,11 +168,11 @@ async function exportPdfAndOpenWhatsAppApp() {
 
   const student = document.getElementById("studentName")?.value?.trim() || "student";
   const caption =
-    `IVS Admission Form for ${student}\nSession: 2025–26\n\nPlease review the attached PDF. Thank you.`;
+    `IVS Tuition Form for ${student}\nSession: 2025–26\n\nPlease review the attached PDF. Thank you.`;
 
   try {
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: "IVS Admission Form", text: caption });
+      await navigator.share({ files: [file], title: "IVS Tuition Form", text: caption });
       try { pdf.save(filename); } catch {}
       return;
     }
@@ -189,7 +181,7 @@ async function exportPdfAndOpenWhatsAppApp() {
   }
 
   try { pdf.save(filename); } catch {}
-  const helper = `Assalamu Alaikum. I have saved my admission form PDF (${filename}). I will attach the file here and send.`;
+  const helper = `Assalamu Alaikum. I have saved my tuition form PDF (${filename}). I will attach the file here and send.`;
   const deepLink = `whatsapp://send?text=${encodeURIComponent(helper)}`;
   window.location.href = deepLink;
 
@@ -199,64 +191,64 @@ async function exportPdfAndOpenWhatsAppApp() {
 }
 
 /* ---------- 5) Send Form Data to n8n Webhook ---------- */
-async function sendFormDataToServer() {
-  const studentName = document.getElementById("studentName")?.value || "";
-  const fatherName = document.getElementById("fatherName")?.value || "";
-  const fatherOccupation = document.getElementById("fOcc")?.value || "";
-  const dob = document.getElementById("dob")?.value || "";
-  const gender = document.querySelector('input[name="gender"]:checked')?.value || "";
-  const religion = document.getElementById("religion")?.value || "";
-  const nationality = document.getElementById("nation")?.value || "";
-  const guardianWhatsapp = document.getElementById("guardianWhatsapp")?.value || "";
-  const CnicOrPassport = document.getElementById("guardianId")?.value || "";
-  const regDate = document.getElementById("regDate")?.value || "";
-  const grade = document.getElementById("grade")?.value || "";
-  const addr = document.getElementById("addr")?.value || "";
-  const city = document.getElementById("city")?.value || "";
-  const state = document.getElementById("state")?.value || "";
-  const zip = document.getElementById("zip")?.value || "";
-  const gContact = document.getElementById("gContact")?.value || "";
-  const sContact = document.getElementById("sContact")?.value || "";
+// async function sendFormDataToServer() {
+//   const studentName = document.getElementById("studentName")?.value || "";
+//   const fatherName = document.getElementById("fatherName")?.value || "";
+//   const fatherOccupation = document.getElementById("fOcc")?.value || "";
+//   const dob = document.getElementById("dob")?.value || "";
+//   const gender = document.querySelector('input[name="gender"]:checked')?.value || "";
+//   const religion = document.getElementById("religion")?.value || "";
+//   const nationality = document.getElementById("nation")?.value || "";
+//   const guardianWhatsapp = document.getElementById("guardianWhatsapp")?.value || "";
+//   const CnicOrPassport = document.getElementById("guardianId")?.value || "";
+//   const regDate = document.getElementById("regDate")?.value || "";
+//   const grade = document.getElementById("grade")?.value || "";
+//   const addr = document.getElementById("addr")?.value || "";
+//   const city = document.getElementById("city")?.value || "";
+//   const state = document.getElementById("state")?.value || "";
+//   const zip = document.getElementById("zip")?.value || "";
+//   const gContact = document.getElementById("gContact")?.value || "";
+//   const sContact = document.getElementById("sContact")?.value || "";
 
-  const subjects = Array.from(document.querySelectorAll('input[name="subjects"]:checked'))
-    .map(el => el.value)
-    .join(", ");
+//   const subjects = Array.from(document.querySelectorAll('input[name="subjects"]:checked'))
+//     .map(el => el.value)
+//     .join(", ");
 
-  const signatureDataUrl = getSignatureDataURL(); // اگر یہ تمہارے پاس define ہے تو ٹھیک
+//   const signatureDataUrl = getSignatureDataURL(); // اگر یہ تمہارے پاس define ہے تو ٹھیک
 
-  try {
-    const response = await fetch("https://amirkhanivs.app.n8n.cloud/webhook-test/8cd28224-d123-4c6e-a4aa-17ceba3f141f", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        studentName,
-        fatherName,
-        fatherOccupation,
-        dob,
-        gender,
-        religion,
-        nationality,
-        guardianWhatsapp,
-        CnicOrPassport,
-        grade,
-        subjects,
-        addr,
-        city,
-        state,
-        zip,
-        gContact,
-        sContact,
-        regDate,
-        signatureDataUrl
-      }),
-    });
+//   try {
+//     const response = await fetch("------------------------------------------------------------", {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({
+//         studentName,
+//         fatherName,
+//         fatherOccupation,
+//         dob,
+//         gender,
+//         religion,
+//         nationality,
+//         guardianWhatsapp,
+//         CnicOrPassport,
+//         grade,
+//         subjects,
+//         addr,
+//         city,
+//         state,
+//         zip,
+//         gContact,
+//         sContact,
+//         regDate,
+//         signatureDataUrl
+//       }),
+//     });
 
-    console.log("📤 Data sent to n8n:", await response.text());
-    alert("Form submitted successfully!");
-  } catch (err) {
-    console.error("⚠️ Error sending data to n8n:", err);
-  }
-}
+//     console.log("📤 Data sent to n8n:", await response.text());
+//     alert("Form submitted successfully!");
+//   } catch (err) {
+//     console.error("⚠️ Error sending data to n8n:", err);
+//   }
+// }
 /* ---------- LIVE INVOICE AUTO-FILL (updates while user fills page 1) ---------- */
 
 const gradeFee = {
